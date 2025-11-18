@@ -89,3 +89,58 @@ output "cluster_addons" {
   value       = module.eks.cluster_addons
 }
 
+output "argocd_namespace" {
+  description = "ArgoCD namespace"
+  value       = var.enable_argocd ? kubernetes_namespace.argocd[0].metadata[0].name : null
+}
+
+output "argocd_admin_password" {
+  description = "ArgoCD initial admin password (base64 encoded)"
+  value       = var.enable_argocd ? try(data.kubernetes_secret.argocd_admin[0].data["password"], null) : null
+  sensitive   = true
+}
+
+output "argocd_admin_password_decoded" {
+  description = "ArgoCD initial admin password (decoded)"
+  value       = var.enable_argocd ? try(base64decode(data.kubernetes_secret.argocd_admin[0].data["password"]), null) : null
+  sensitive   = true
+}
+
+output "argocd_server_url" {
+  description = "ArgoCD server URL"
+  value = var.enable_argocd ? (
+    var.argocd_enable_loadbalancer ? 
+    "https://${try(data.kubernetes_service.argocd_server[0].status[0].load_balancer[0].ingress[0].hostname, "<pending>")}" :
+    "Use port-forward: kubectl port-forward svc/argocd-server -n argocd 8080:443"
+  ) : null
+}
+
+output "argocd_server_loadbalancer_hostname" {
+  description = "ArgoCD server LoadBalancer hostname (if enabled)"
+  value       = var.enable_argocd && var.argocd_enable_loadbalancer ? try(data.kubernetes_service.argocd_server[0].status[0].load_balancer[0].ingress[0].hostname, null) : null
+}
+
+output "argocd_port_forward_command" {
+  description = "Command to access ArgoCD via port-forward"
+  value       = var.enable_argocd ? "kubectl port-forward svc/argocd-server -n argocd 8080:443" : null
+}
+
+output "argocd_cli_login_command" {
+  description = "Command to login to ArgoCD CLI"
+  value = var.enable_argocd ? (
+    var.argocd_enable_loadbalancer ?
+    "argocd login ${try(data.kubernetes_service.argocd_server[0].status[0].load_balancer[0].ingress[0].hostname, "<pending>")}" :
+    "argocd login localhost:8080 --insecure"
+  ) : null
+}
+
+output "argocd_ha_enabled" {
+  description = "Whether ArgoCD is deployed in HA mode"
+  value       = var.enable_argocd ? var.argocd_ha_enabled : null
+}
+
+output "argocd_metrics_enabled" {
+  description = "Whether ArgoCD metrics are enabled"
+  value       = var.enable_argocd ? var.argocd_metrics_enabled : null
+}
+
