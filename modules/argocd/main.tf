@@ -1,7 +1,37 @@
+data "terraform_remote_state" "eks" {
+  backend = "s3"
+  config = {
+    bucket = "test1111-tf"
+    key = "test1/terraform.tfstate"
+    region = "eu-west-1"
+  }
+}
+
+provider "helm" {
+  kubernetes = {
+    host                   = data.terraform_remote_state.eks.outputs.cluster_endpoint
+    cluster_ca_certificate = base64decode(data.terraform_remote_state.eks.outputs.cluster_certificate_authority_data)
+    
+    exec  = {
+      api_version = "client.authentication.k8s.io/v1beta1"
+      command     = "aws"
+      args        = ["eks", "get-token", "--cluster-name", data.terraform_remote_state.eks.outputs.cluster_name]
+    }
+  }
+}
+
+provider "kubernetes" {
+  host                   = data.terraform_remote_state.eks.outputs.cluster_endpoint
+  cluster_ca_certificate = base64decode(data.terraform_remote_state.eks.outputs.cluster_certificate_authority_data)
+
+  exec {
+    api_version = "client.authentication.k8s.io/v1beta1"
+    command     = "aws"
+    args = ["eks", "get-token", "--cluster-name", data.terraform_remote_state.eks.outputs.cluster_name]
+  }
+}
 
 resource "kubernetes_namespace" "argocd" {
-  count = var.enable_argocd ? 1 : 0
-
   metadata {
     name = "argocd"
     labels = {
@@ -11,18 +41,14 @@ resource "kubernetes_namespace" "argocd" {
       "pod-security.kubernetes.io/enforce" = "baseline"
     }
   }
-
-  depends_on = [module.eks]
 }
 
 resource "helm_release" "argocd" {
-  count = var.enable_argocd ? 1 : 0
-
   name       = "argocd"
   repository = "https://argoproj.github.io/argo-helm"
   chart      = "argo-cd"
   version    = var.argocd_chart_version
-  namespace  = kubernetes_namespace.argocd[0].metadata[0].name
+  namespace  = kubernetes_namespace.argocd.metadata[0].name
   reuse_values = true
   
   values = [
@@ -141,11 +167,6 @@ resource "helm_release" "argocd" {
   wait          = true
   wait_for_jobs = true
   timeout       = 600
-
-  depends_on = [
-    module.eks,
-    kubernetes_namespace.argocd
-  ]
 }
 /*
 resource "kubernetes_manifest" "argocd_root_app" {
@@ -188,22 +209,18 @@ resource "kubernetes_manifest" "argocd_root_app" {
 }
 */
 data "kubernetes_secret" "argocd_admin" {
-  count = var.enable_argocd ? 1 : 0
-
   metadata {
     name      = "argocd-initial-admin-secret"
-    namespace = kubernetes_namespace.argocd[0].metadata[0].name
+    namespace = kubernetes_namespace.argocd.metadata[0].name
   }
 
   depends_on = [helm_release.argocd]
 }
 
 data "kubernetes_service" "argocd_server" {
-  count = var.enable_argocd ? 1 : 0
-
   metadata {
     name      = "argocd-server"
-    namespace = kubernetes_namespace.argocd[0].metadata[0].name
+    namespace = kubernetes_namespace.argocd.metadata[0].name
   }
 
   depends_on = [helm_release.argocd]

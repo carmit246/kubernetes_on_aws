@@ -23,7 +23,6 @@ output "nat_gateway_ids" {
   value       = module.networking.nat_gateway_ids
 }
 
-
 output "cluster_id" {
   description = "The name/id of the EKS cluster"
   value       = module.kubernetes.cluster_id

@@ -37,3 +37,11 @@ terraform init
 terraform plan
 terraform apply
 ```
+
+### Deploy ArgoCD
+```
+cd argocd
+terraform init
+terraform plan
+terraform apply
+```
