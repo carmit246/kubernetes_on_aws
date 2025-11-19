@@ -21,34 +21,14 @@ echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://
 sudo apt-get update
 sudo apt-get install -y terraform
 ```
-
-## Option 1: Single state file provisioning
-
-### Deploy bootstrap (creates S3 bucket for state)
+install terragrunt
 ```
-cd bootstrap
-terraform init
-terraform plan
-terraform apply
+curl -L https://github.com/gruntwork-io/terragrunt/releases/latest/download/terragrunt_linux_amd64 -o terragrunt
+chmod +x terragrunt
+sudo mv terragrunt /usr/local/bin/
 ```
 
-### Deploy Network architecture and EKS cluster and ECR
-```
-cd ..
-terraform init
-terraform plan
-terraform apply
-```
-
-### Deploy ArgoCD
-```
-cd argocd
-terraform init
-terraform plan
-terraform apply
-```
-
-## Option 2: Multiple state file provisioning
+## Provision infrastruture
 
 ### Serial run of the terraform code, 3 separate state files: networking, kubernetes and argocd
 ```
