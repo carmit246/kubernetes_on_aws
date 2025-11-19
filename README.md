@@ -22,6 +22,8 @@ sudo apt-get update
 sudo apt-get install -y terraform
 ```
 
+## Option 1: Single state file provisioning
+
 ### Deploy bootstrap (creates S3 bucket for state)
 ```
 cd bootstrap
@@ -44,4 +46,12 @@ cd argocd
 terraform init
 terraform plan
 terraform apply
+```
+
+## Option 2: Multiple state file provisioning
+
+### Serial run of the terraform code, 3 separate state files: networking, kubernetes and argocd
+```
+cd environments/dev
+provision.sh
 ```

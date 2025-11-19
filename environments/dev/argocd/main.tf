@@ -2,7 +2,7 @@ data "terraform_remote_state" "eks" {
   backend = "s3"
   config = {
     bucket = "test1111-tf"
-    key = "test1/terraform.tfstate"
+    key = "kubernetes/terraform.tfstate"
     region = "eu-west-1"
   }
 }
@@ -32,7 +32,7 @@ provider "kubernetes" {
 }
 
 module "argocd" {
-  source = "../modules/argocd"
+  source = "../../../modules/argocd"
 }
 
 

@@ -1,27 +1,37 @@
-variable "cluster_name" {
-  description = "Name of the EKS cluster"
+variable "aws_region" {
+  description = "AWS region where resources will be created"
   type        = string
-}
-
-variable "cluster_version" {
-  description = "Kubernetes version to use for the EKS cluster"
-  type        = string
-  default     = "1.28"
+  default     = "eu-west-1"
 }
 
 variable "environment" {
   description = "Environment name (e.g., dev, staging, prod)"
   type        = string
+  default     = "dev"
 }
 
-variable "vpc_id" {
-  description = "VPC ID where the cluster will be deployed"
+variable "project_name" {
+  description = "Project name to be used as a prefix for resources"
   type        = string
+  default     = "test1"
 }
 
-variable "private_subnet_ids" {
-  description = "List of private subnet IDs for the cluster"
-  type        = list(string)
+variable "enable_ecr_endpoints" {
+  description = "Enable ECR VPC endpoints (costs ~$7/month but saves data transfer)"
+  type        = bool
+  default     = false
+}
+
+variable "cluster_name" {
+  description = "Name of the EKS cluster"
+  type        = string
+  default     = "test1-eks"
+}
+
+variable "cluster_version" {
+  description = "Kubernetes version to use for the EKS cluster"
+  type        = string
+  default     = "1.33"
 }
 
 variable "cluster_endpoint_public_access" {
@@ -56,9 +66,8 @@ variable "node_groups" {
     })), [])
     tags             = optional(map(string), {})
   }))
-
   default = {
-    ng1 = {
+    backend = {
       instance_types  = ["t3.medium", "t3a.medium"]
       capacity_type   = "SPOT"
       min_size        = 1
@@ -68,17 +77,19 @@ variable "node_groups" {
       disk_type       = "gp3"
       disk_iops       = 3000
       disk_throughput = 125
-      labels          = {}
-      taints          = []
-      tags            = {}
+      labels = {
+        role = "backend"
+      }
+      taints = []
+      tags   = {}
     }
   }
 }
 
-variable "additional_security_group_rules" {
-  description = "Additional security group rules to add to the node security group"
-  type        = any
-  default     = {}
+variable "enable_cluster_autoscaler" {
+  description = "Enable cluster autoscaler IAM policies"
+  type        = bool
+  default     = true
 }
 
 variable "enable_cluster_encryption" {
@@ -87,14 +98,29 @@ variable "enable_cluster_encryption" {
   default     = false
 }
 
-variable "enable_cluster_autoscaler" {
-  description = "Enable IAM policy for cluster autoscaler"
-  type        = bool
-  default     = true
-}
-
 variable "tags" {
   description = "Additional tags to apply to all resources"
   type        = map(string)
   default     = {}
+}
+
+variable "ecr_repositories" {
+  description = "Map of ECR repository configurations"
+  type = map(object({
+    name                 = string
+    image_tag_mutability = optional(string, "MUTABLE")
+    scan_on_push         = optional(bool, true)
+    max_image_count      = optional(number, 10)
+    tags                 = optional(map(string), {})
+  }))
+  
+  default = {
+    backend = {
+      name                 = "test1-app"
+      image_tag_mutability = "MUTABLE"
+      scan_on_push         = true
+      max_image_count      = 10
+      tags                 = {}
+    }
+  }
 }
