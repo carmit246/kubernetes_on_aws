@@ -33,6 +33,10 @@ provider "kubernetes" {
 
 module "argocd" {
   source = "../../../modules/argocd"
+  enable_backend_app = var.enable_backend_app
+  backend_app_repo = var.backend_app_repo
+  backend_app_path = var.backend_app_path
+  backend_app_namespace = var.backend_app_namespace
 }
 
 

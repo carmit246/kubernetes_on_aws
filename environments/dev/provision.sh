@@ -7,4 +7,6 @@ terraform apply -auto-approve
 cd ../kubernetes
 terraform init
 terraform apply -auto-approve
-cd ..
+cd ../argocd
+terraform init
+terraform apply -auto-approve

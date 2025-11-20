@@ -192,3 +192,42 @@ data "kubernetes_service" "argocd_server" {
 
   depends_on = [helm_release.argocd]
 }
+
+resource "kubernetes_manifest" "backend_application" {
+  count = var.enable_backend_app ? 1 : 0
+  
+  manifest = {
+    apiVersion = "argoproj.io/v1alpha1"
+    kind       = "Application"
+    metadata = {
+      name      = "backend-api"
+      namespace = kubernetes_namespace.argocd.metadata[0].name
+      finalizers = [
+        "resources-finalizer.argocd.argoproj.io"
+      ]
+    }
+    spec = {
+      project = "default"
+      source = {
+        repoURL        = var.backend_app_repo
+        targetRevision = var.backend_app_branch
+        path           = var.backend_app_path
+      }
+      destination = {
+        server    = "https://kubernetes.default.svc"
+        namespace = var.backend_app_namespace
+      }
+      syncPolicy = {
+        automated = {
+          prune    = true
+          selfHeal = true
+        }
+        syncOptions = [
+          "CreateNamespace=true"
+        ]
+      }
+    }
+  }
+
+  depends_on = [helm_release.argocd]
+}

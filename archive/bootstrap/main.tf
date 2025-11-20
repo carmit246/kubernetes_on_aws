@@ -20,7 +20,7 @@ provider "aws" {
 }
 
 module "terraform_state" {
-  source = "../modules/terraform-state"
+  source = "../../modules/terraform-state"
   bucket_name         = var.bucket_name
   dynamodb_table_name = var.dynamodb_table_name
   tags = var.tags
