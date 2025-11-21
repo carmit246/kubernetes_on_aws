@@ -34,4 +34,5 @@ chmod +x provision.sh
 1. S3 bucket and DynamoDB table for terraform state
 2. VPC (and related networking resources)
 3. EKS cluster (auto-mode) and ECR Repository
-4. Argocd deployment with the backend application
+4. Argocd deployment
+5. ArgoCD application for hello-world backend app

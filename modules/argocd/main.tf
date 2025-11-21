@@ -135,46 +135,7 @@ resource "helm_release" "argocd" {
   wait_for_jobs = true
   timeout       = 600
 }
-/*
-resource "kubernetes_manifest" "argocd_root_app" {
-  count = var.enable_argocd && var.argocd_create_root_app ? 1 : 0
 
-  manifest = {
-    apiVersion = "argoproj.io/v1alpha1"
-    kind       = "Application"
-    metadata = {
-      name      = "root-app"
-      namespace = kubernetes_namespace.argocd[0].metadata[0].name
-      finalizers = [
-        "resources-finalizer.argocd.argoproj.io"
-      ]
-    }
-    spec = {
-      project = "default"
-      source = {
-        repoURL        = var.argocd_root_app_repo
-        targetRevision = var.argocd_root_app_branch
-        path           = var.argocd_root_app_path
-      }
-      destination = {
-        server    = "https://kubernetes.default.svc"
-        namespace = "default"
-      }
-      syncPolicy = {
-        automated = {
-          prune    = true
-          selfHeal = true
-        }
-        syncOptions = [
-          "CreateNamespace=true"
-        ]
-      }
-    }
-  }
-
-  depends_on = [helm_release.argocd]
-}
-*/
 data "kubernetes_secret" "argocd_admin" {
   metadata {
     name      = "argocd-initial-admin-secret"
@@ -188,45 +149,6 @@ data "kubernetes_service" "argocd_server" {
   metadata {
     name      = "argocd-server"
     namespace = kubernetes_namespace.argocd.metadata[0].name
-  }
-
-  depends_on = [helm_release.argocd]
-}
-
-resource "kubernetes_manifest" "backend_application" {
-  count = var.enable_backend_app ? 1 : 0
-  
-  manifest = {
-    apiVersion = "argoproj.io/v1alpha1"
-    kind       = "Application"
-    metadata = {
-      name      = "backend-api"
-      namespace = kubernetes_namespace.argocd.metadata[0].name
-      finalizers = [
-        "resources-finalizer.argocd.argoproj.io"
-      ]
-    }
-    spec = {
-      project = "default"
-      source = {
-        repoURL        = var.backend_app_repo
-        targetRevision = var.backend_app_branch
-        path           = var.backend_app_path
-      }
-      destination = {
-        server    = "https://kubernetes.default.svc"
-        namespace = var.backend_app_namespace
-      }
-      syncPolicy = {
-        automated = {
-          prune    = true
-          selfHeal = true
-        }
-        syncOptions = [
-          "CreateNamespace=true"
-        ]
-      }
-    }
   }
 
   depends_on = [helm_release.argocd]
