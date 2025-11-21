@@ -21,17 +21,10 @@ echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://
 sudo apt-get update
 sudo apt-get install -y terraform
 ```
-install terragrunt
-```
-curl -L https://github.com/gruntwork-io/terragrunt/releases/latest/download/terragrunt_linux_amd64 -o terragrunt
-chmod +x terragrunt
-sudo mv terragrunt /usr/local/bin/
-```
 
 ## Provision infrastruture
 
 ### Serial run of the terraform code, 3 separate state files: networking, kubernetes and argocd
 ```
-cd environments/dev
 provision.sh
 ```

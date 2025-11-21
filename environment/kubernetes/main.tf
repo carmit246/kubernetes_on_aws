@@ -19,7 +19,7 @@ data "terraform_remote_state" "vpc" {
 }
 
 module "kubernetes" {
-  source = "../../../modules/eks"
+  source = "../../modules/eks-auto"
   cluster_name    = var.cluster_name
   cluster_version = var.cluster_version
   environment     = var.environment
@@ -34,7 +34,7 @@ module "kubernetes" {
 }
 
 module "ecr" {
-  source = "../../../modules/ecr"
+  source = "../../modules/ecr"
   environment = var.environment
   aws_region  = var.aws_region
   repositories = var.ecr_repositories
