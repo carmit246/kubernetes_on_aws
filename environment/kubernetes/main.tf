@@ -39,11 +39,11 @@ module "ecr" {
   aws_region  = var.aws_region
   repositories = var.ecr_repositories
   allow_pull_principals = [module.kubernetes.node_iam_role_arn]
-  create_vpc_endpoints = true
+  create_vpc_endpoints = var.create_vpc_endpoints
   vpc_id              = data.terraform_remote_state.vpc.outputs.vpc_id
   vpc_cidr            = data.terraform_remote_state.vpc.outputs.vpc_cidr_block
   private_subnet_ids  = data.terraform_remote_state.vpc.outputs.private_subnets
-  enable_kms_encryption = false
+  enable_kms_encryption = var.enable_kms_encryption
   tags = local.common_tags
   depends_on = [module.kubernetes]
 }

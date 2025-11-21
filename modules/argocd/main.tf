@@ -54,7 +54,7 @@ resource "helm_release" "argocd" {
         service = {
           type = var.argocd_enable_loadbalancer ? "LoadBalancer" : "ClusterIP"
           annotations = var.argocd_enable_loadbalancer ? {
-            "service.beta.kubernetes.io/aws-load-balancer-type" = "nlb"
+            "service.beta.kubernetes.io/aws-load-balancer-type" = "alb"
             "service.beta.kubernetes.io/aws-load-balancer-scheme" = var.argocd_loadbalancer_internal ? "internal" : "internet-facing"
           } : {}
         }

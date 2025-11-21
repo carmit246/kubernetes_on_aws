@@ -16,7 +16,7 @@ variable "project_name" {
   default     = "test1"
 }
 
-variable "enable_ecr_endpoints" {
+variable "create_vpc_endpoints" {
   description = "Enable ECR VPC endpoints (costs ~$7/month but saves data transfer)"
   type        = bool
   default     = false
@@ -103,6 +103,13 @@ variable "tags" {
   type        = map(string)
   default     = {}
 }
+
+variable "enable_kms_encryption" {
+  description = "Enable encryption using KMS"
+  type        = bool
+  default     = false
+}
+
 
 variable "ecr_repositories" {
   description = "Map of ECR repository configurations"

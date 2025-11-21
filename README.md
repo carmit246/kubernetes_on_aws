@@ -9,12 +9,14 @@ unzip -q awscliv2.zip
 sudo ./aws/install
 rm -f awscliv2.zip
 ```
-#### login to aws
+#### login to aws 
 ```
-export AWS_ACCESS_KEY_ID="your-access-key-id"
-export AWS_SECRET_ACCESS_KEY="your-secret-access-key"
-export AWS_DEFAULT_REGION="region"
+aws configure
 ```
+provide the inputs to login
+
+if available, use ```aws sso login```
+
 #### install terraform
 ```
 wget -qO- https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
@@ -30,7 +32,7 @@ sudo apt-get install -y terraform
 chmod +x provision.sh
 ./provision.sh
 ```
-```provision.sh``` script, runs 4 TF folders in sequence:
+```provision.sh``` script, runs 5 TF folders in sequence:
 1. S3 bucket and DynamoDB table for terraform state
 2. VPC (and related networking resources)
 3. EKS cluster (auto-mode) and ECR Repository
